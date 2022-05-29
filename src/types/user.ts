@@ -1,8 +1,7 @@
 export interface BasicUser {
-    id: number
+    username: string
 };
 
 export interface User extends BasicUser {
-    username: string,
     spectator: boolean
 };
