@@ -5,6 +5,7 @@
   "main": "telepathy.js",
   "scripts": {
     "start": "ts-node src/telepathy.ts",
+    "setupdb": "ts-node scripts/setupdb.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
