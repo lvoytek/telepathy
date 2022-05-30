@@ -4,7 +4,9 @@ import { config } from "./config";
 import interactionCreate from "./listeners/interactionCreate";
 
 const client = new Client({
-    intents: []
+    intents: [
+        "GUILD_MEMBERS"
+    ]
 });
 
 ready(client);
