@@ -1,5 +1,4 @@
 import { BaseCommandInteraction, Client } from "discord.js";
-import { db } from "../db";
 import { Command } from "../command";
 import { Channel } from "../types/channel";
 import * as channelQuery from "../models/channel";
