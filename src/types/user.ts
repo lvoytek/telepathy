@@ -1,5 +1,5 @@
 export interface BasicUser {
-    username: string
+    userid: string
 };
 
 export interface User extends BasicUser {
