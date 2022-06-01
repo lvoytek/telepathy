@@ -1,7 +1,7 @@
 import { BasicUser, User } from "./user";
 import { BasicNetwork, Network } from "./network";
 export interface BasicChannel {
-    id: string
+    channelid: string
 };
 
 export interface Channel extends BasicChannel {

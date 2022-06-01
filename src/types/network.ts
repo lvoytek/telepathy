@@ -1,5 +1,5 @@
 export interface BasicNetwork {
-    id: string
+    networkid: number
 };
 
 export interface Network extends BasicNetwork {

@@ -23,7 +23,7 @@ const bondTableQuery = "CREATE TABLE bonds ( \
     user2 VARCHAR(24), \
     network INT, \
     FOREIGN KEY (user1) REFERENCES users(userid), \
-    FOREIGN KEY (user1) REFERENCES users(userid), \
+    FOREIGN KEY (user2) REFERENCES users(userid), \
     FOREIGN KEY (network) REFERENCES networks(networkid), \
     PRIMARY KEY (user1, user2, network) \
     );"
