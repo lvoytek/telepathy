@@ -1,31 +1,38 @@
-import { BaseCommandInteraction, Client } from "discord.js";
+import { ApplicationCommandOption, BaseCommandInteraction, Client } from "discord.js";
 import { Command } from "../command";
 import { Channel } from "../types/channel";
 import * as channelQuery from "../models/channel";
+import { Network } from "../types/network";
+import * as networkQuery from "../models/network";
 import { QueryError } from "mysql2";
+import { ChannelTypes } from "discord.js/typings/enums";
 
 export const Setup: Command = {
     name: "setuptelepathy",
-    description: "Setup this channel as a channel for telepathy",
+    description: "Create a new telepathy network on this server",
     type: "CHAT_INPUT",
+    options: [{name: "name", description: "The name of the network", type: 'STRING', required: true} as ApplicationCommandOption],
     run: async (client: Client, interaction: BaseCommandInteraction) => {
-        const channelID = interaction.channelId;
-        const channel : Channel = {id: channelID};
-        const channelInfo = client.channels.cache.get(channelID) ?? await client.channels.fetch(channelID);
+        const server = interaction.guild;
+        const name = interaction.options.get("name")?.value as string;
 
-        channelQuery.create(channel, (error: QueryError | null) => {
-            const content = (channelInfo) ?
-                ((error) ?
-                    ((error.code == 'ER_DUP_ENTRY') ?
-                        channelInfo.toString() + " is already set up for telepathy"
-                        : "Failed to set up " + channelInfo.toString() + "for telepathy: database error")
-                    : channelInfo.toString() + " set up for telepathy")
-                : "Error: channel not found";
+        let content = "Telepathy network creation failed: ";
+        if(name) {
+            if(server) {
+                server.channels.create(name, {type: ChannelTypes.GUILD_TEXT, reason: "Telepathy time",}).then(channel => {
+                    console.log(channel.id + " " + channel.name);
+                });
+                content = "Telepathy network " + name + " set up successfully";
+            } else {
+                content += "unable to find guild";
+            }
+        } else {
+            content = "invalid name provided";
+        }
 
-            interaction.followUp({
-                ephemeral: true,
-                content
-            });
+        interaction.followUp({
+            ephemeral: false,
+            content
         });
     }
 }
