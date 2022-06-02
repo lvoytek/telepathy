@@ -14,25 +14,49 @@ export const Setup: Command = {
     options: [{name: "name", description: "The name of the network", type: 'STRING', required: true} as ApplicationCommandOption],
     run: async (client: Client, interaction: BaseCommandInteraction) => {
         const server = interaction.guild;
-        const name = interaction.options.get("name")?.value as string;
 
-        let content = "Telepathy network creation failed: ";
-        if(name) {
-            if(server) {
-                server.channels.create(name, {type: ChannelTypes.GUILD_TEXT, reason: "Telepathy time",}).then(channel => {
-                    console.log(channel.id + " " + channel.name);
-                });
-                content = "Telepathy network " + name + " set up successfully";
-            } else {
-                content += "unable to find guild";
-            }
-        } else {
-            content = "invalid name provided";
+        let network: Network = {
+            name: interaction.options.get("name")?.value as string,
+            networkid: 0
         }
 
-        interaction.followUp({
-            ephemeral: false,
-            content
+        networkQuery.create(network, (networkDBError: QueryError | null, networkID: number) => {
+            let content = "Telepathy network creation failed: ";
+
+            if(networkDBError) {
+                content += "database error";
+            } else {
+                network.networkid = networkID;
+
+                if(network.name) {
+                    if(server) {
+                        const everyoneRole = server.roles.everyone;
+                        server.members.fetch().then((allUsers) =>
+                        {
+                            const users = allUsers.filter(user => !user.user.bot);
+                            users.forEach((user) => {
+                                server.channels.create(network.name + " " + user.displayName,
+                                    {type: ChannelTypes.GUILD_TEXT, reason: "Telepathy time"}).then(channel => {
+                                    channel.permissionOverwrites.create(user, {VIEW_CHANNEL: true});
+                                    channel.permissionOverwrites.create(everyoneRole, {VIEW_CHANNEL: false});
+                                    console.log(channel.id + " " + channel.name);
+                                });
+                            });
+                        });
+
+                        content = "Telepathy network " + network.name + " set up successfully";
+                    } else {
+                        content += "unable to find guild";
+                    }
+                } else {
+                    content = "invalid name provided";
+                }
+            }
+
+            interaction.followUp({
+                ephemeral: false,
+                content
+            });
         });
     }
 }
