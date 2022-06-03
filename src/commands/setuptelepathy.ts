@@ -1,4 +1,4 @@
-import { ApplicationCommandOption, BaseCommandInteraction, Client } from "discord.js";
+import { ApplicationCommandOption, BaseCommandInteraction, Client, RoleManager } from "discord.js";
 import { Command } from "../command";
 import { Channel } from "../types/channel";
 import * as channelQuery from "../models/channel";
@@ -20,7 +20,7 @@ export const Setup: Command = {
             networkid: 0
         }
 
-        networkQuery.create(network, (networkDBError: QueryError | null, networkID: number) => {
+        networkQuery.create(network, async (networkDBError: QueryError | null, networkID: number) => {
             let content = "Telepathy network creation failed: ";
 
             if(networkDBError) {
@@ -30,19 +30,16 @@ export const Setup: Command = {
 
                 if(network.name) {
                     if(server) {
-                        const everyoneRole = server.roles.everyone;
-                        server.members.fetch().then((allUsers) =>
-                        {
-                            const users = allUsers.filter(user => !user.user.bot);
-                            users.forEach((user) => {
-                                server.channels.create(network.name + " " + user.displayName,
-                                    {type: ChannelTypes.GUILD_TEXT, reason: "Telepathy time"}).then(channel => {
-                                    channel.permissionOverwrites.create(user, {VIEW_CHANNEL: true});
-                                    channel.permissionOverwrites.create(everyoneRole, {VIEW_CHANNEL: false});
-                                    console.log(channel.id + " " + channel.name);
-                                });
-                            });
-                        });
+                        const everyoneRole = await server.roles.fetch(server.id);
+                        const users = (await server.members.fetch()).filter(user => !user.user.bot);
+                        for(const userSet of users) {
+                            const user = userSet[1];
+                            const channel = await server.channels.create(network.name + " " + user.displayName,
+                                {type: ChannelTypes.GUILD_TEXT, reason: "Telepathy time"});
+                            await channel.permissionOverwrites.create(user, {VIEW_CHANNEL: true});
+                            if(everyoneRole)
+                                await channel.permissionOverwrites.create(everyoneRole, {VIEW_CHANNEL: false});
+                        }
 
                         content = "Telepathy network " + network.name + " set up successfully";
                     } else {
