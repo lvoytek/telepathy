@@ -1,9 +1,9 @@
 import { ApplicationCommandOption, BaseCommandInteraction, Client, RoleManager } from "discord.js";
 import { Command } from "../command";
-import { Channel } from "../types/channel";
 import * as channelQuery from "../models/channel";
 import { Network } from "../types/network";
 import * as networkQuery from "../models/network";
+import * as userQuery from "../models/user";
 import { QueryError } from "mysql2";
 import { ChannelTypes } from "discord.js/typings/enums";
 
@@ -46,6 +46,22 @@ export const Setup: Command = {
 
                             if(everyoneRole)
                                 await channel.permissionOverwrites.create(everyoneRole, {VIEW_CHANNEL: false, SEND_MESSAGES: false});
+
+                            userQuery.create({userid: user.id}, (error: QueryError | null) => {
+                                if(error && error.code != 'ER_DUP_ENTRY')
+                                    console.log("Error creating user " + user.id + ": " + error.code);
+                                else {
+                                    channelQuery.create({
+                                        channelid: channel.id,
+                                        user: {userid: user.id},
+                                        network: {networkid: networkID},
+                                        spectator: false
+                                    }, (error: QueryError | null) => {
+                                        if(error)
+                                            console.log("Error creating channel " + channel.name + ": " + error.code);
+                                    });
+                                }
+                            });
                         }
 
                         content = "Telepathy network " + network.name + " set up successfully";
