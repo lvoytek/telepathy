@@ -3,5 +3,6 @@ export interface BasicNetwork {
 };
 
 export interface Network extends BasicNetwork {
-    name: string
+    name: string,
+    spectatorid: string
 };

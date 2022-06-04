@@ -15,9 +15,13 @@ export const Setup: Command = {
     run: async (client: Client, interaction: BaseCommandInteraction) => {
         const server = interaction.guild;
 
+        const networkName = interaction.options.get("name")?.value as string;
+        const spectatorRole = await server?.roles.create({name: networkName + " spectator"});
+
         let network: Network = {
-            name: interaction.options.get("name")?.value as string,
-            networkid: 0
+            name: networkName,
+            networkid: 0,
+            spectatorid: (spectatorRole) ? spectatorRole.id : ((server) ? server.id : "")
         }
 
         networkQuery.create(network, async (networkDBError: QueryError | null, networkID: number) => {
@@ -36,9 +40,12 @@ export const Setup: Command = {
                             const user = userSet[1];
                             const channel = await server.channels.create(network.name + " " + user.displayName,
                                 {type: ChannelTypes.GUILD_TEXT, reason: "Telepathy time"});
-                            await channel.permissionOverwrites.create(user, {VIEW_CHANNEL: true});
+                            await channel.permissionOverwrites.create(user, {VIEW_CHANNEL: true, SEND_MESSAGES: true});
+                            if(spectatorRole)
+                                await channel.permissionOverwrites.create(spectatorRole, {VIEW_CHANNEL: true, SEND_MESSAGES: false});
+
                             if(everyoneRole)
-                                await channel.permissionOverwrites.create(everyoneRole, {VIEW_CHANNEL: false});
+                                await channel.permissionOverwrites.create(everyoneRole, {VIEW_CHANNEL: false, SEND_MESSAGES: false});
                         }
 
                         content = "Telepathy network " + network.name + " set up successfully";

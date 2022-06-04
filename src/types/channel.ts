@@ -6,7 +6,8 @@ export interface BasicChannel {
 
 export interface Channel extends BasicChannel {
     user: BasicUser,
-    network: BasicNetwork
+    network: BasicNetwork,
+    spectator: boolean
 };
 
 export interface ExtendedChannel extends Channel {

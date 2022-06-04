@@ -1,19 +1,20 @@
 import { db } from "../src/db";
 
 const userTableQuery = "CREATE TABLE users ( \
-    userid VARCHAR(24) PRIMARY KEY, \
-    spectator BOOLEAN \
+    userid VARCHAR(24) PRIMARY KEY \
  );";
 
 const networkTableQuery = "CREATE TABLE networks ( \
     networkid INT AUTO_INCREMENT PRIMARY KEY, \
-    name VARCHAR(120) \
+    name VARCHAR(120), \
+    spectatorid VARCHAR(24) \
 );";
 
 const channelTableQuery = "CREATE TABLE channels ( \
     channelid VARCHAR(24) PRIMARY KEY, \
     user VARCHAR(24), \
     network INT, \
+    spectator BOOLEAN, \
     FOREIGN KEY (user) REFERENCES users(userid), \
     FOREIGN KEY (network) REFERENCES networks(networkid) \
 );";
