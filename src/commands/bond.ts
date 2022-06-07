@@ -1,4 +1,4 @@
-import { ApplicationCommandOption, BaseCommandInteraction, Client, GuildMember } from "discord.js";
+import { ApplicationCommandOption, BaseCommandInteraction, Client, GuildMember, TextChannel } from "discord.js";
 import { Command } from "../command";
 import { Channel } from "../types/channel";
 import * as channelQuery from "../models/channel";
@@ -88,6 +88,16 @@ export const Bond: Command = {
                                                 content
                                             });
                                         } else {
+                                            interaction.guild?.channels.fetch(toChannel.channelid).then((channel) => {
+                                                if (channel) {
+                                                    interaction.user.fetch().then((user) => {
+                                                        (channel as TextChannel).send(
+                                                            user.username + " added you to their telepathy group"
+                                                        );
+                                                    });
+                                                }
+                                            });
+
                                             const content = "Added " + addedUserName + " to your telepathy group";
                                             interaction.followUp({
                                                 ephemeral: false,
