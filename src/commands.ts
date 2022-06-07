@@ -1,5 +1,5 @@
 import { Command } from "./command";
 import { Setup } from "./commands/setuptelepathy";
-import { AddContact } from "./commands/addcontact";
+import { Bond } from "./commands/bond";
 
-export const Commands: Command[] = [Setup, AddContact];
+export const Commands: Command[] = [Setup, Bond];
