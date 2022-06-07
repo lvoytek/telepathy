@@ -75,11 +75,17 @@ export const Bond: Command = {
                                         user2: { userid: addedUser.id },
                                         network: fromChannel.network
                                     },
-                                    (error: QueryError | null) => {
+                                    (error: QueryError | null, added: boolean) => {
                                         if (error) {
                                             interaction.followUp({
                                                 ephemeral: false,
                                                 content: "Error creating bond in database"
+                                            });
+                                        } else if (!added) {
+                                            const content = addedUserName + " is already in your telepathy group";
+                                            interaction.followUp({
+                                                ephemeral: false,
+                                                content
                                             });
                                         } else {
                                             const content = "Added " + addedUserName + " to your telepathy group";

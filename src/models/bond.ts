@@ -1,6 +1,6 @@
 import { Bond } from "../types/bond";
 import { db } from "../db";
-import { QueryError, RowDataPacket } from "mysql2";
+import { QueryError, ResultSetHeader, RowDataPacket } from "mysql2";
 import { BasicUser } from "../types/user";
 import { BasicNetwork, Network } from "../types/network";
 
@@ -14,11 +14,28 @@ export const create = (bond: Bond, callback: Function) => {
             callback(error);
         } else {
             // Add bond if it is new
-            if (!alreadyExists) {
+            if (alreadyExists) callback(null, false);
+            else {
                 db.query(queryString, [bond.user1.userid, bond.user2.userid, bond.network.networkid], (error) => {
-                    callback(error ? error : null);
+                    if (error) callback(error);
+                    else callback(null, true);
                 });
             }
+        }
+    });
+};
+
+export const remove = (bond: Bond, callback: Function) => {
+    // Remove any connections where either user is user1 and the other is user2 and vice versa
+    const queryString = "DELETE FROM bonds WHERE user1=? AND user2=? AND network=?;";
+
+    db.query(queryString, [bond.user1.userid, bond.user2.userid, bond.network.networkid], (error, result: ResultSetHeader) => {
+        if (error) callback(error);
+        else {
+            db.query(queryString, [bond.user2.userid, bond.user1.userid, bond.network.networkid], (error, result2: ResultSetHeader) => {
+                if(error) callback(error);
+                else callback(null, result.affectedRows > 0 || result2.affectedRows > 0);
+            });
         }
     });
 };
