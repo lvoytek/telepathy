@@ -42,6 +42,8 @@ export const Setup: Command = {
                 if (network.name) {
                     if (server) {
                         const everyoneRole = await server.roles.fetch(server.id);
+                        const telepathyBot =
+                            client.user && client.user.id ? await server.members.fetch(client.user.id) : null;
                         const users = (await server.members.fetch()).filter((user) => !user.user.bot);
                         for (const userSet of users) {
                             const user = userSet[1];
@@ -49,6 +51,11 @@ export const Setup: Command = {
                                 type: ChannelTypes.GUILD_TEXT,
                                 reason: "Telepathy time"
                             });
+                            if (telepathyBot)
+                                await channel.permissionOverwrites.create(telepathyBot, {
+                                    VIEW_CHANNEL: true,
+                                    SEND_MESSAGES: true
+                                });
                             await channel.permissionOverwrites.create(user, {
                                 VIEW_CHANNEL: true,
                                 SEND_MESSAGES: true
