@@ -5,7 +5,9 @@ import interactionCreate from "./listeners/interactionCreate";
 
 const client = new Client({
     intents: [
-        "GUILD_MEMBERS"
+        "GUILD_MEMBERS",
+        "GUILD_MESSAGES",
+        "GUILDS"
     ]
 });
 
