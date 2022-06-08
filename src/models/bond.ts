@@ -29,21 +29,48 @@ export const remove = (bond: Bond, callback: Function) => {
     // Remove any connections where either user is user1 and the other is user2 and vice versa
     const queryString = "DELETE FROM bonds WHERE user1=? AND user2=? AND network=?;";
 
-    db.query(queryString, [bond.user1.userid, bond.user2.userid, bond.network.networkid], (error, result: ResultSetHeader) => {
+    db.query(
+        queryString,
+        [bond.user1.userid, bond.user2.userid, bond.network.networkid],
+        (error, result: ResultSetHeader) => {
+            if (error) callback(error);
+            else {
+                db.query(
+                    queryString,
+                    [bond.user2.userid, bond.user1.userid, bond.network.networkid],
+                    (error, result2: ResultSetHeader) => {
+                        if (error) callback(error);
+                        else callback(null, result.affectedRows > 0 || result2.affectedRows > 0);
+                    }
+                );
+            }
+        }
+    );
+};
+
+export const getAllBondedUsers = (from: BasicUser, network: BasicNetwork, callback: Function) => {
+    const queryString = "SELECT b.user1, b.user2 FROM bonds as b WHERE b.network=? AND (b.user1=? OR b.user2=?);";
+
+    db.query(queryString, [network.networkid, from.userid, from.userid], (error, result) => {
         if (error) callback(error);
         else {
-            db.query(queryString, [bond.user2.userid, bond.user1.userid, bond.network.networkid], (error, result2: ResultSetHeader) => {
-                if(error) callback(error);
-                else callback(null, result.affectedRows > 0 || result2.affectedRows > 0);
+            const rows = <RowDataPacket[]>result;
+            const users: BasicUser[] = [];
+
+            rows.forEach((row) => {
+                const user: BasicUser = { userid: row.user1 == from.userid ? row.user2 : row.user1 };
+                users.push(user);
             });
+
+            callback(null, users);
         }
     });
 };
 
 export const doesBondExist = (from: BasicUser, to: BasicUser, network: BasicNetwork, callback: Function) => {
     const queryString =
-        "SELECT c.* FROM bonds as c WHERE c.network=? AND ((c.user1=? AND c.user2=?)" +
-        " OR (c.user2=? AND c.user1=?))";
+        "SELECT b.* FROM bonds as b WHERE b.network=? AND ((b.user1=? AND b.user2=?)" +
+        " OR (b.user2=? AND b.user1=?));";
 
     db.query(queryString, [network.networkid, from.userid, to.userid, from.userid, to.userid], (error, result) => {
         if (error) callback(error);
