@@ -28,7 +28,8 @@ export const Bond: Command = {
             const content =
                 addedUserName +
                 ", there's no need to use telepathy on yourself. If you want your own internal" +
-                " monologue just type in your telepathy channel.";
+                " monologue use @self at the beginning of your message in your telepathy channel.";
+
             interaction.followUp({
                 ephemeral: false,
                 content

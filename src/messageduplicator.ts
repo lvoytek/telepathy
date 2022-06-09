@@ -7,7 +7,7 @@ import { QueryError } from "mysql2";
 import { BasicNetwork } from "./types/network";
 
 export const handleMessage = async (client: Client, message: Message): Promise<void> => {
-    if (message.channel.isText() && !message.author.bot) {
+    if (message.channel.isText() && !message.author.bot && !message.content.startsWith("@self")) {
         channelQuery.get(message.channelId, (error: QueryError | null, channel: Channel) => {
             if (!error && channel) {
                 bondQuery.getAllBondedUsers(
