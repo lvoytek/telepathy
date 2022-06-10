@@ -51,6 +51,9 @@ export const Setup: Command = {
                                 type: ChannelTypes.GUILD_TEXT,
                                 reason: "Telepathy time"
                             });
+
+                            await channel.createWebhook("telepathy", { avatar: telepathyBot?.avatarURL() });
+
                             if (telepathyBot)
                                 await channel.permissionOverwrites.create(telepathyBot, {
                                     VIEW_CHANNEL: true,

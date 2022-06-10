@@ -30,15 +30,27 @@ export const sendDuplicateMessage = async (message: Message, channel: Channel) =
     if (message.guild) {
         const sendChannel = await message.guild.channels.fetch(channel.channelid);
         if (sendChannel && sendChannel.type === "GUILD_TEXT") {
-            sendChannel.send({
-                files: Array.from(message.attachments.values()),
-                content: message.content ? message.content : " "
-            });
+            const fromUser = await message.guild.members.fetch(message.author.id);
+            const fromUserName = fromUser.nickname ?? fromUser.displayName ?? "Telepathy";
+            const msgHook = (await sendChannel.fetchWebhooks()).first();
+
+            if (msgHook) {
+                if (msgHook.name != fromUserName)
+                    await msgHook.edit({ name: fromUserName, avatar: message.author.avatarURL() });
+                await msgHook.send({
+                    files: Array.from(message.attachments.values()),
+                    content: message.content ? message.content : " "
+                });
+            }
         }
     }
 };
 
-export const sendDuplicateMessagesToUsers = async (message: Message, users: BasicUser[], network: BasicNetwork) => {
+export const sendDuplicateMessagesToUsers = async (
+    message: Message,
+    users: BasicUser[],
+    network: BasicNetwork
+) => {
     users.forEach((user) => {
         channelQuery.getChannelFromNetworkAndUser(network, user, (error: QueryError | null, toChannel: Channel) => {
             if (error) {
