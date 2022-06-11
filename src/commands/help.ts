@@ -1,6 +1,6 @@
 import { Client, BaseCommandInteraction, ApplicationCommandOption, ApplicationCommandOptionChoiceData } from "discord.js";
 import { Command } from "../command";
-import { Commands, CommandDescriptions } from "src/commands";
+import { Commands, CommandDescriptions } from "../commands";
 
 
 function createCommandChoices(): ApplicationCommandOptionChoiceData[] {
