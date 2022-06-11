@@ -15,6 +15,12 @@ export const DirectMessage: Command = {
             description: "Name of the user to dm",
             type: "USER",
             required: true
+        } as ApplicationCommandOption,
+        {
+            name: "message",
+            description: "The message to send",
+            type: "STRING",
+            required: true
         } as ApplicationCommandOption
     ],
     run: async (client: Client, interaction: BaseCommandInteraction) => {
@@ -23,5 +29,28 @@ export const DirectMessage: Command = {
         const currentUserID = interaction.user.id;
         const dmUser = interaction.options.getMember("user") as GuildMember;
         const dmUserName = dmUser.nickname ?? dmUser.displayName;
+
+        if (currentUserID == dmUser.id) {
+            if (interaction.guild) {
+                const currentChannel = (await interaction.guild.channels.fetch(channelID)) as TextChannel;
+                const msgHook = (await currentChannel.fetchWebhooks()).first();
+
+                if (msgHook) {
+                    msgHook?.send({ content: (interaction.options.get("message") ?? " ") as string });
+
+                    interaction.followUp({
+                        ephemeral: false,
+                        content: "You sent a message to yourself"
+                    });
+
+                    return;
+                }
+            }
+
+            interaction.followUp({
+                ephemeral: false,
+                content: "Message failed to send to yourself"
+            });
+        }
     }
 };
