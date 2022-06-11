@@ -80,4 +80,42 @@ Now copy the link at the bottom of the page. This can be used to add your bot to
 ### Backend Setup
 To run Telepathy, you will need a system that will always be online when needed that can run MySQL and nodejs.
 
+Start by installing MySQL, either from the [website](https://www.mysql.com/downloads/) or via a package manager.
+
+Next, install NodeJS with version >= 16.9.0. [nvm](https://github.com/nvm-sh/nvm) makes this easier to do. Then install yarn through npm
+
+    npm install -g yarn
+
+Finally, install git on your system.
+
+Clone the repository with the following command:
+
+    git clone https://github.com/lvoytek/telepathy.git
+
+Enter the repository and install npm packages.
+
+    cd telepathy
+    yarn install
+
+Now set up the .env file for the app. There is an example file to base it off of in the repository called [.env.example](.env.example).
+
+In the token section, paste your token from the discord app page. Then choose a custom password for the password section.
+
+If you are using a MySQL server on the same system, leave localhost as is, otherwise set MYSQL_HOST to the remote ip or site name. The MySQL user and db name can be whatever you want, just make sure to set them accordingly when building the database.
+
+Next, build the database. Enter the mysql console then type the following commands:
+
+    mysql
+    > CREATE USER 'discordbot'@'localhost' IDENTIFIED BY 'password';
+    > CREATE DATABASE telepathy;
+    > GRANT ALL PRIVILEGES ON `telepathy` . * TO 'discordbot'@'localhost';
+
+To create the tables, run the setupdb script in the repository.
+
+    npm run setupdb
+
+Now the app can be started with:
+
+    yarn start
+
 
