@@ -19,4 +19,9 @@ usage: /unbond [user]
 
 Remove a user from your telepathy group. Removed users will no longer see messages you send in your telepathy channel. This command must be run in a telepathy channel to work.
 
+### listbonds
+usage: /listbonds
+
+Show a list of people who are in your telepathy group. This command must be run in a telepathy channel to work.
+
 ## Setup
