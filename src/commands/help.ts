@@ -3,11 +3,46 @@ import { Command } from "../command";
 
 
 const commands : Map<string, string> = new Map([
-    ["setuptelepathy",  "Create a new telepathy network on this server"],
-    ["bond", "Create a bond with a person"],
-    ["unbond", "Destroy a bond with a person"],
-    ["listbonds", "Check which users are in your telepathic group"],
+    ["setuptelepathy",  
+    `usage: /setuptelepathy [network name]
+        Set up private channels for each user to send telepathy messages through, along with a spectator role for the network. The network name is used to differentiate the channels and role for the created telepathy structure`
+    ],
+    ["bond", 
+    `usage: /bond [user]
+        Add another user to your telepathy group. With the user connected, whenever you send a message in your channel they will see it in theirs. This command must be run in a telepathy channel for the connection to work.`
+    ],
+    ["unbond", 
+    `usage: /unbond [user]
+        Remove a user from your telepathy group. Removed users will no longer see messages you send in your telepathy channel. This command must be run in a telepathy channel to work.`
+    ],
+    ["listbonds", 
+    `usage: /listbonds
+        Show a list of people who are in your telepathy group. This command must be run in a telepathy channel to work.`
+    ],
 ]);
+
+
+const helpText= `
+setuptelepathy
+usage: /setuptelepathy [network name]
+
+Set up private channels for each user to send telepathy messages through, along with a spectator role for the network. The network name is used to differentiate the channels and role for the created telepathy structure.
+
+bond
+usage: /bond [user]
+
+Add another user to your telepathy group. With the user connected, whenever you send a message in your channel they will see it in theirs. This command must be run in a telepathy channel for the connection to work.
+
+unbond
+usage: /unbond [user]
+
+Remove a user from your telepathy group. Removed users will no longer see messages you send in your telepathy channel. This command must be run in a telepathy channel to work.
+
+listbonds
+usage: /listbonds
+
+Show a list of people who are in your telepathy group. This command must be run in a telepathy channel to work.
+`
 
 function createCommandChoices(): ApplicationCommandOptionChoiceData[] {
     let commandChoices : ApplicationCommandOptionChoiceData[] = [];
@@ -15,7 +50,7 @@ function createCommandChoices(): ApplicationCommandOptionChoiceData[] {
         commandChoices.push({
             name: command,
             value: command
-        })
+        });
     }
     return commandChoices;
 } 
@@ -38,7 +73,7 @@ export const Help: Command = {
     
     run: async (client: Client, interaction: BaseCommandInteraction) => {
        const choice = interaction.options.get('command', false)?.value as string;
-       const content = choice ? commands.get(choice) : 'Explantatory text';
+       const content = choice ? `${choice} : ${commands.get(choice)}` : helpText;
        interaction.followUp({
         ephemeral: false,
             content
