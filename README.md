@@ -51,3 +51,33 @@ usage: /listbonds
 Show a list of people who are in your telepathy group. This command must be run in a telepathy channel to work.
 
 ## Create your own Telepathy app
+### Create the discord app
+In a web browser log in to discord and access the [developer portal](https://discord.com/developers/applications).
+
+Select `New Application` and give it a name.
+
+In the `General Information` tab you can give your application a name, a description, and a profile picture.
+
+In the `Bot` tab, select `Add bot`. You can then add a profile picture and name for the bot.
+
+In the `token` section for the bot, select `Reset Token` then `Copy`. Paste the token in  a secure location and do not share it.
+
+![Reset Token](img/reset-token.png)
+![Copy Token](img/copy-token.png)
+
+Next, select at least `SERVER MEMBERS INTENT` and `MESSAGE CONTENT INTENT`:
+
+![Bot tab selections](img/bottab.png)
+
+Now select `OAuth2 > URL Generator` to create the URL for your application.
+
+In the `scopes` section select `bot`. Then in the following `Bot Permissions` section select `Manage Roles`, `Manage Channels`, `Manage Webhooks`, `Send Messages`, `Embed Links`, and `Attach Files`.
+
+![Bot Permissions](img/bot-permissions.png)
+
+Now copy the link at the bottom of the page. This can be used to add your bot to a Discord server.
+
+### Backend Setup
+To run Telepathy, you will need a system that will always be online when needed that can run MySQL and nodejs.
+
+
