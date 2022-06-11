@@ -1,68 +1,43 @@
-import { Client, BaseCommandInteraction, GuildMember } from "discord.js";
+import { Client, BaseCommandInteraction, ApplicationCommandOption, ApplicationCommandOptionChoiceData } from "discord.js";
 import { Command } from "../command";
-import { Channel } from "../types/channel";
-import * as channelQuery from "../models/channel";
-import { BasicUser } from "../types/user";
-import * as bondQuery from "../models/bond";
-import { QueryError } from "mysql2";
+import { Commands, CommandDescriptions } from "src/commands";
 
-export const ListBonds: Command = {
+
+function createCommandChoices(): ApplicationCommandOptionChoiceData[] {
+    let commandChoices : ApplicationCommandOptionChoiceData[] = [];
+    for (let command of Commands) {
+        if(command.name !== 'help') {
+            commandChoices.push({
+                name: command.name,
+                value: command.name
+            })
+        }
+    }
+    return commandChoices;
+} 
+
+const choices: ApplicationCommandOptionChoiceData[] = createCommandChoices();
+
+export const Help: Command = {
     name: "help",
     description: "Learn about command(s)",
-    type: "STRING",
+    type: "CHAT_INPUT",
     options: [
         {
             name: "command",
             description: "Command you want details for",
             type: "STRING",
-            required: false
+            required: false,
+            choices,
         } as ApplicationCommandOption
     ],
+    
     run: async (client: Client, interaction: BaseCommandInteraction) => {
-        channelQuery.get(interaction.channelId, (error: QueryError | null, channel: Channel) => {
-            if (error) {
-                interaction.followUp({
-                    ephemeral: false,
-                    content: "Error accessing database"
-                });
-            } else if (!channel) {
-                interaction.followUp({
-                    ephemeral: false,
-                    content:
-                        "This channel is not connected to a telepathy network, use a connected channel to view bonds."
-                });
-            } else {
-                bondQuery.getAllBondedUsers(
-                    { userid: interaction.user.id },
-                    channel.network,
-                    (error: QueryError | null, users: BasicUser[]) => {
-                        let userIDs: string[] = [];
-                        for (let user of users) {
-                            userIDs.push(user.userid);
-                        }
-                        if (interaction.guild) {
-                            interaction.guild.members.fetch({ user: userIDs }).then((members) => {
-                                let content = "Bonds: ";
-                                for (let member of members) {
-                                    content += "<@" + (member[1].id) + ">, ";
-                                }
-
-                                content = content.slice(0, -2);
-
-                                interaction.followUp({
-                                    ephemeral: false,
-                                    content
-                                });
-                            });
-                        } else {
-                            interaction.followUp({
-                                ephemeral: false,
-                                content: "Error accessing guild"
-                            });
-                        }
-                    }
-                );
-            }
+       const choice = interaction.options.get('command', false)?.value as string;
+       const content = choice ? CommandDescriptions.get(choice) : 'Explantatory text';
+       interaction.followUp({
+        ephemeral: false,
+            content
         });
     }
 };
