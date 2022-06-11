@@ -12,12 +12,10 @@ const commands : Map<string, string> = new Map([
 function createCommandChoices(): ApplicationCommandOptionChoiceData[] {
     let commandChoices : ApplicationCommandOptionChoiceData[] = [];
     for (let command of commands.keys()) {
-        if(command !== 'help') {
-            commandChoices.push({
-                name: command,
-                value: command
-            })
-        }
+        commandChoices.push({
+            name: command,
+            value: command
+        })
     }
     return commandChoices;
 } 
