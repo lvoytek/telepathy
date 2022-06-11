@@ -71,7 +71,7 @@ Next, select at least `SERVER MEMBERS INTENT` and `MESSAGE CONTENT INTENT`:
 
 Now select `OAuth2 > URL Generator` to create the URL for your application.
 
-In the `scopes` section select `bot`. Then in the following `Bot Permissions` section select `Manage Roles`, `Manage Channels`, `Manage Webhooks`, `Send Messages`, `Embed Links`, and `Attach Files`.
+In the `scopes` section select `bot` and `applications.commands`. Then in the following `Bot Permissions` section select `Manage Roles`, `Manage Channels`, `Manage Webhooks`, `Send Messages`, `Embed Links`, and `Attach Files`.
 
 ![Bot Permissions](img/bot-permissions.png)
 
