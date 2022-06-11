@@ -8,21 +8,52 @@ import { BasicNetwork } from "./types/network";
 
 export const handleMessage = async (client: Client, message: Message): Promise<void> => {
     if (message.channel.isText() && !message.author.bot && !message.content.startsWith("@self")) {
-        channelQuery.get(message.channelId, (error: QueryError | null, channel: Channel) => {
-            if (!error && channel) {
-                bondQuery.getAllBondedUsers(
-                    { userid: message.author.id },
-                    channel.network,
-                    (error: QueryError | null, users: BasicUser[]) => {
-                        if (error)
-                            (message.channel as TextChannel).send(
-                                "Encountered database error while trying to send message"
-                            );
-                        else sendDuplicateMessagesToUsers(message, users, channel.network);
-                    }
-                );
-            }
-        });
+        // Check for mention at beginning of message
+        if (message.content.startsWith("<@") && message.content.indexOf(">")) {
+            const mentionID = message.content.slice(2, message.content.indexOf(">"));
+            channelQuery.get(message.channelId, (error: QueryError | null, channel: Channel) => {
+                if (!error && channel) {
+                    bondQuery.doesBondExist(
+                        { userid: message.author.id },
+                        { userid: mentionID },
+                        channel.network,
+                        (bondError: QueryError | null, bondExists: boolean) => {
+                            if (!bondError) {
+                                if (!bondExists) {
+                                    message.reply("<@" + mentionID + "> is not bonded to you.");
+                                } else {
+                                    channelQuery.getChannelFromNetworkAndUser(
+                                        channel.network,
+                                        { userid: mentionID },
+                                        (otherChannelError: QueryError | null, otherChannel: Channel) => {
+                                            if (!otherChannelError && otherChannel)
+                                                sendDuplicateMessage(message, otherChannel);
+                                        }
+                                    );
+                                }
+                            }
+                        }
+                    );
+                }
+            });
+        // Send to all connections
+        } else {
+            channelQuery.get(message.channelId, (error: QueryError | null, channel: Channel) => {
+                if (!error && channel) {
+                    bondQuery.getAllBondedUsers(
+                        { userid: message.author.id },
+                        channel.network,
+                        (error: QueryError | null, users: BasicUser[]) => {
+                            if (error)
+                                (message.channel as TextChannel).send(
+                                    "Encountered database error while trying to send message"
+                                );
+                            else sendDuplicateMessagesToUsers(message, users, channel.network);
+                        }
+                    );
+                }
+            });
+        }
     }
 };
 
@@ -46,11 +77,7 @@ export const sendDuplicateMessage = async (message: Message, channel: Channel) =
     }
 };
 
-export const sendDuplicateMessagesToUsers = async (
-    message: Message,
-    users: BasicUser[],
-    network: BasicNetwork
-) => {
+export const sendDuplicateMessagesToUsers = async (message: Message, users: BasicUser[], network: BasicNetwork) => {
     users.forEach((user) => {
         channelQuery.getChannelFromNetworkAndUser(network, user, (error: QueryError | null, toChannel: Channel) => {
             if (error) {
