@@ -1,15 +1,21 @@
 import { Client, BaseCommandInteraction, ApplicationCommandOption, ApplicationCommandOptionChoiceData } from "discord.js";
 import { Command } from "../command";
-import { Commands, CommandDescriptions } from "../commands";
 
+
+const Commands : Map<string, string> = new Map([
+    ["setuptelepathy",  "Create a new telepathy network on this server"],
+    ["bond", "Create a bond with a person"],
+    ["unbond", "Destroy a bond with a person"],
+    ["listbonds", "Check which users are in your telepathic group"],
+]);
 
 function createCommandChoices(): ApplicationCommandOptionChoiceData[] {
     let commandChoices : ApplicationCommandOptionChoiceData[] = [];
-    for (let command of Commands) {
-        if(command.name !== 'help') {
+    for (let command of Commands.keys()) {
+        if(command !== 'help') {
             commandChoices.push({
-                name: command.name,
-                value: command.name
+                name: command,
+                value: command
             })
         }
     }
