@@ -1,4 +1,4 @@
-import { ApplicationCommandOption, BaseCommandInteraction, Client, RoleManager } from "discord.js";
+import { ApplicationCommandOption, BaseCommandInteraction, Client } from "discord.js";
 import { Command } from "../command";
 import * as channelQuery from "../models/channel";
 import { Network } from "../types/network";
@@ -41,6 +41,7 @@ export const Setup: Command = {
 
                 if (network.name) {
                     if (server) {
+                        const telepathySection = await server.channels.create(network.name + " telepathy", {type: ChannelTypes.GUILD_CATEGORY});
                         const everyoneRole = await server.roles.fetch(server.id);
                         const telepathyBot =
                             client.user && client.user.id ? await server.members.fetch(client.user.id) : null;
@@ -51,6 +52,8 @@ export const Setup: Command = {
                                 type: ChannelTypes.GUILD_TEXT,
                                 reason: "Telepathy time"
                             });
+
+                            await channel.setParent(telepathySection);
 
                             await channel.createWebhook("telepathy", { avatar: telepathyBot?.avatarURL() });
 
