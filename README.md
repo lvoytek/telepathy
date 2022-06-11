@@ -50,6 +50,11 @@ usage: /listbonds
 
 Show a list of people who are in your telepathy group. This command must be run in a telepathy channel to work.
 
+### dm
+usage: /dm [user] [message]
+
+To send a message only to a specific contact, you can start a message in your channel with @<userid>. However, since this is often inconvenient on discord due to users outside the channel not showing up, you can also send a direct message with the dm command. Specify the user to send the message to in the user section, and add the message to the message section. This command must be run in a telepathy channel to work.
+
 ## Create your own Telepathy app
 ### Create the discord app
 In a web browser log in to discord and access the [developer portal](https://discord.com/developers/applications).
