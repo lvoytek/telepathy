@@ -31,29 +31,121 @@ export const DirectMessage: Command = {
         const dmUserName = dmUser.nickname ?? dmUser.displayName;
 
         if (interaction.guild) {
-            const currentUser = await interaction.guild.members.fetch(currentUserID);
+            // User is talking to themself
             if (currentUserID == dmUser.id) {
-                const currentChannel = (await interaction.guild.channels.fetch(channelID)) as TextChannel;
-                const msgHook = (await currentChannel.fetchWebhooks()).first();
+                sendDM(interaction, channelID, (success: boolean) => {
+                    if (success) {
+                        interaction.followUp({
+                            ephemeral: false,
+                            content: "You sent a message to yourself"
+                        });
+                    } else {
+                        interaction.followUp({
+                            ephemeral: false,
+                            content: "Message failed to send to yourself"
+                        });
+                    }
+                });
 
-                if (msgHook) {
-                    if (msgHook.name != dmUserName)
-                        await msgHook.edit({ name: dmUserName, avatar: currentUser.user.avatarURL() });
-                    msgHook.send({ content: (interaction.options.get("message")?.value as string) ?? " " });
-
-                    interaction.followUp({
-                        ephemeral: false,
-                        content: "You sent a message to yourself"
-                    });
-
-                    return;
-                }
+                // Send to someone else
+            } else {
+                channelQuery.get(channelID, (error: QueryError | null, channel: Channel) => {
+                    if (error) {
+                        interaction.followUp({
+                            ephemeral: false,
+                            content: "Failed to get channel, database error"
+                        });
+                    } else {
+                        if (!channel) {
+                            interaction.followUp({
+                                ephemeral: false,
+                                content:
+                                    "This channel is not connected to a telepathy network, use a connected channel to dm someone."
+                            });
+                        } else {
+                            bondQuery.doesBondExist(
+                                { userid: currentUserID },
+                                { userid: dmUser.id },
+                                channel.network,
+                                (bondError: QueryError | null, bondExists: boolean) => {
+                                    if (bondError) {
+                                        interaction.followUp({
+                                            ephemeral: false,
+                                            content: "Failed to find bond, database error"
+                                        });
+                                    } else {
+                                        if (!bondExists) {
+                                            const content = "<@" + dmUser.id + "> is not bonded to you.";
+                                            interaction.followUp({
+                                                ephemeral: false,
+                                                content
+                                            });
+                                        } else {
+                                            channelQuery.getChannelFromNetworkAndUser(
+                                                channel.network,
+                                                { userid: dmUser.id },
+                                                (otherChannelError: QueryError | null, otherChannel: Channel) => {
+                                                    if (!otherChannelError && otherChannel) {
+                                                        sendDM(
+                                                            interaction,
+                                                            otherChannel.channelid,
+                                                            (success: boolean) => {
+                                                                if (success) {
+                                                                    interaction.followUp({
+                                                                        ephemeral: false,
+                                                                        content: "Sent message to <@" + dmUser.id + ">"
+                                                                    });
+                                                                } else {
+                                                                    interaction.followUp({
+                                                                        ephemeral: false,
+                                                                        content:
+                                                                            "Failed to send message to <@" +
+                                                                            dmUser.id +
+                                                                            ">"
+                                                                    });
+                                                                }
+                                                            }
+                                                        );
+                                                    } else {
+                                                        interaction.followUp({
+                                                            ephemeral: false,
+                                                            content:
+                                                                "Failed to find <@" +
+                                                                dmUser.id +
+                                                                ">'s channel, database error"
+                                                        });
+                                                    }
+                                                }
+                                            );
+                                        }
+                                    }
+                                }
+                            );
+                        }
+                    }
+                });
             }
-
+        } else {
             interaction.followUp({
                 ephemeral: false,
-                content: "Message failed to send to yourself"
+                content: "Message failed to send, guild missing"
             });
         }
     }
+};
+
+const sendDM = async (interaction: BaseCommandInteraction, channelID: string, callback: Function) => {
+    if (interaction.guild) {
+        const currentChannel = (await interaction.guild.channels.fetch(channelID)) as TextChannel;
+        const msgHook = (await currentChannel.fetchWebhooks()).first();
+        const currentUser = await interaction.guild.members.fetch(interaction.user.id);
+        const dmUserName = currentUser.nickname ?? currentUser.displayName;
+
+        if (msgHook) {
+            if (msgHook.name != dmUserName)
+                await msgHook.edit({ name: dmUserName, avatar: currentUser.user.avatarURL() });
+            msgHook.send({ content: (interaction.options.get("message")?.value as string) ?? " " });
+            callback(true);
+        } else callback(false);
+    } else callback(false);
 };
