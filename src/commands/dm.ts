@@ -30,13 +30,16 @@ export const DirectMessage: Command = {
         const dmUser = interaction.options.getMember("user") as GuildMember;
         const dmUserName = dmUser.nickname ?? dmUser.displayName;
 
-        if (currentUserID == dmUser.id) {
-            if (interaction.guild) {
+        if (interaction.guild) {
+            const currentUser = await interaction.guild.members.fetch(currentUserID);
+            if (currentUserID == dmUser.id) {
                 const currentChannel = (await interaction.guild.channels.fetch(channelID)) as TextChannel;
                 const msgHook = (await currentChannel.fetchWebhooks()).first();
 
                 if (msgHook) {
-                    msgHook?.send({ content: (interaction.options.get("message") ?? " ") as string });
+                    if (msgHook.name != dmUserName)
+                        await msgHook.edit({ name: dmUserName, avatar: currentUser.user.avatarURL() });
+                    msgHook.send({ content: (interaction.options.get("message")?.value as string) ?? " " });
 
                     interaction.followUp({
                         ephemeral: false,
