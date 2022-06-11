@@ -36,7 +36,7 @@ export const ListBonds: Command = {
                             interaction.guild.members.fetch({ user: userIDs }).then((members) => {
                                 let content = "Bonds: ";
                                 for (let member of members) {
-                                    content += (member[1].nickname ?? member[1].displayName) + ", ";
+                                    content += "<@" + (member[1].id) + ">, ";
                                 }
 
                                 content = content.slice(0, -2);

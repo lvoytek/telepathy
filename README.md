@@ -23,11 +23,11 @@ Now when Alice sends a message in her channel it goes to Bob and Charlie. When B
 
 To see who is currently connected to you, run the listbonds command. When Dave runs `/listbonds` the bot returns:
 
-    Bonds: Bob, Eve
+    Bonds: @Bob, @Eve
 
 To remove a connection, run the unbond command. If Charlie runs `/unbond Alice` then `/listbonds` the bot will reply with:
 
-    Bonds: Bob
+    Bonds: @Bob
 
 ## Bot commands
 ### setuptelepathy
