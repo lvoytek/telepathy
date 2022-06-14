@@ -29,6 +29,8 @@ To remove a connection, run the unbond command. If Charlie runs `/unbond Alice` 
 
     Bonds: @Bob
 
+When another user is bonded to you, you can also direct message them via the telepathy channel. Since Charlie is connected to Bob, they can talk to him directly by either mentioning him at the beginning of a message or by using the `dm` command. For example, to say "Hello," they can either type `@Bob Hello` or `/dm @Bob Hello`.
+
 ## Bot commands
 ### setuptelepathy
 usage: /setuptelepathy [network name]
