@@ -91,6 +91,7 @@ export const DirectMessage: Command = {
                                                             otherChannel.channelid,
                                                             (success: boolean) => {
                                                                 if (success) {
+                                                                    sendDM(interaction, channel.channelid, (_:boolean)=>{});
                                                                     interaction.followUp({
                                                                         ephemeral: false,
                                                                         content: "Sent message to <@" + dmUser.id + ">"
