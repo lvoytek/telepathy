@@ -1,4 +1,4 @@
-import { Message, Client, TextChannel } from "discord.js";
+import { Message, Client, TextChannel, MessageEmbed } from "discord.js";
 import { Channel } from "./types/channel";
 import * as channelQuery from "./models/channel";
 import { BasicUser } from "./types/user";
@@ -36,7 +36,7 @@ export const handleMessage = async (client: Client, message: Message): Promise<v
                     );
                 }
             });
-        // Send to all connections
+            // Send to all connections
         } else {
             channelQuery.get(message.channelId, (error: QueryError | null, channel: Channel) => {
                 if (!error && channel) {
@@ -57,22 +57,37 @@ export const handleMessage = async (client: Client, message: Message): Promise<v
     }
 };
 
+export const sendBotMessage = async (message: Message, channel: TextChannel) => {
+    const fromUser = await message.guild?.members.fetch(message.author.id);
+    const fromUserName = fromUser?.nickname ?? fromUser?.displayName ?? message.author.username;
+
+    let messageEmbed: MessageEmbed = new MessageEmbed()
+    .setAuthor({name: fromUserName, iconURL: message.author.avatarURL() as string})
+    .setDescription(message.content);
+    await channel.send({
+        embeds: [messageEmbed],
+        files: Array.from(message.attachments.values())
+    });
+};
+
 export const sendDuplicateMessage = async (message: Message, channel: Channel) => {
     if (message.guild) {
         const sendChannel = await message.guild.channels.fetch(channel.channelid);
         if (sendChannel && sendChannel.type === "GUILD_TEXT") {
             const fromUser = await message.guild.members.fetch(message.author.id);
-            const fromUserName = fromUser.nickname ?? fromUser.displayName ?? "Telepathy";
+            const fromUserName = fromUser.nickname ?? fromUser.displayName ?? message.author.username;
             const msgHook = (await sendChannel.fetchWebhooks()).first();
 
             if (msgHook) {
                 if (msgHook.name != fromUserName)
                     await msgHook.edit({ name: fromUserName, avatar: message.author.avatarURL() });
-                await msgHook.send({
+                const sentMessage = await msgHook.send({
                     files: Array.from(message.attachments.values()),
                     content: message.content ? message.content : " "
                 });
-            }
+
+                if (!sentMessage) sendBotMessage(message, sendChannel);
+            } else sendBotMessage(message, sendChannel);
         }
     }
 };

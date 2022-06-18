@@ -145,8 +145,8 @@ const sendDM = async (interaction: BaseCommandInteraction, channelID: string, ca
         if (msgHook) {
             if (msgHook.name != dmUserName)
                 await msgHook.edit({ name: dmUserName, avatar: currentUser.user.avatarURL() });
-            msgHook.send({ content: (interaction.options.get("message")?.value as string) ?? " " });
-            callback(true);
+            const sentMessage = await msgHook.send({ content: (interaction.options.get("message")?.value as string) ?? " " });
+            callback((sentMessage) ? true : false);
         } else callback(false);
     } else callback(false);
 };
