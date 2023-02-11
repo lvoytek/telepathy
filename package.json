@@ -7,6 +7,7 @@
         "start": "ts-node src/telepathy.ts",
         "setupdb": "ts-node scripts/setupdb.ts",
         "exportdb": "ts-node scripts/exportdb.ts",
+        "importdb": "ts-node scripts/importdb.ts",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
