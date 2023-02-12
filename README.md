@@ -125,4 +125,22 @@ Now the app can be started with:
 
     yarn start
 
+## Migrate to a new server
 
+If you would like to move your telepathy backend to a new server, there are some additional scripts in this repository that can be used to do so.
+
+### Export data from original server
+
+Access your original server, and in the telepathy directory run:
+
+    npm run exportdb
+
+This will create the file `db.json` containing all relevant data from the mysql database. Copy this file to the telepathy directory of the new server.
+
+### Import data to the new server
+
+Initialize the new server normally through the [Backend Setup](#backend-setup) section, and add your token and credentials to the .env file. Then, with `db.json` in the directory, run:
+
+    npm run importdb
+
+The new server should now be ready to run the existing telepathy channels again.
